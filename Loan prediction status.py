@@ -26,6 +26,7 @@ import numpy as np
 import seaborn as sns # plot librairy
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
 from sklearn import svm
 from sklearn.metrics import accuracy_score # it's used to evaluate our model it tells how well our model is perfoming on a given dataset 
 
@@ -113,7 +114,6 @@ plt.suptitle('')
 plt.show()
 
 
-
 # bivarié analysis
 # we have 8 categorical variables 
 fig,axes = plt.subplots(4,2,figsize = (12,15)) # 4 ==> rows & 2 ===> columns
@@ -129,3 +129,62 @@ plt.subplots_adjust(hspace = 1)
 matrix = Loan_data.corr()
 f, ax = plt.subplots(figsize = (10,12))
 sns.heatmap(matrix, vmax = 8, square = True, cmap = 'BuPu', annot = True) # cmap = colors 
+
+####### ####### ####### ########
+###      Model Creation     ####
+####### ####### ####### ########
+#### cat part ##
+df_cat = Loan_data[var_cat]
+df_cat= pd.get_dummies(df_cat, drop_first = True)
+
+
+#### Num part ##
+df_num = Loan_data[var_num]
+# Concatenation of the two parts cat and num
+df_encoded = pd.concat([df_cat, df_num], axis = 1 )
+
+y = df_encoded['Loan_Status_Y']
+X = df_encoded.drop('Loan_Status_Y', axis = 1)
+   ########################
+####       Training      ####
+ ##########################
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = 0.2,random_state= 6)
+clf = LogisticRegression()
+## train the model nammed clf
+clf.fit(X_train,y_train)
+## Test the model 
+pred = clf.predict(X_test)
+# to compare the y_test and pred 
+accuracy_score(y_test, pred)  ## 0.83 ==> to ameliorate the score we can test to drop some unnecessary columns or to normalize the whole values [0-1]
+
+X.columns
+# now we will use our model and test it 
+profil_test = [[1,1,1,0,0,0,1,0,1,0,100,0,400,360]]
+clf.predict(profil_test) # ===> array([1], dtype=uint8) it's a yes ^^
+
+## Now we will save our  model using pickle
+import pickle 
+pickle.dump(clf, open('Loan_prediction.pkl', 'wb'))
+
+
+################
+#    Test 2    #
+##  With SVM  ##
+################
+Classifier = svm.SVC(kernel = 'linear')
+# Training the support vector machine 
+Classifier.fit(X_train, y_train)
+
+# Accuracy score on training data 
+X_train_prediction = Classifier.predict(X_train)
+# there is a concept in machine learnng which is overtraining means that the model train more on training data so in both accuracy_sores are almost the same in training and test so there is no overfitting 
+training_data_accuracy = accuracy_score(X_train_prediction, y_train) # we compare the values predicted by our model with the original labels of Y_train 
+print("the accuracy score on training data  is ", training_data_accuracy )
+
+
+
+X_test_prediction = Classifier.predict(X_test)
+test_data_accuracy = accuracy_score(X_test_prediction, y_test) 
+print("the accuracy score on training data  is ", test_data_accuracy )
+
+
