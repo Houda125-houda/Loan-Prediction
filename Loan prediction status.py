@@ -24,6 +24,7 @@ Created on Tue Sep 21 21:11:52 2021
 import pandas as pd
 import numpy as np 
 import seaborn as sns # plot librairy
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import accuracy_score # it's used to evaluate our model it tells how well our model is perfoming on a given dataset 
@@ -84,3 +85,47 @@ Loan_data['Gender'].value_counts(normalize = True).plot.bar(title ='Sexe compari
 # dependents : number of children 
 Loan_data['Dependents'].value_counts() 
 Loan_data['Dependents'].value_counts(normalize = True)*100
+
+#############################
+#    Numerical features     #
+############################
+Loan_data[var_num]
+Loan_data.describe()
+
+####         applicatIncome        ####
+plt.figure(1)  # the first figure will be devided in 2 subplot 
+plt.subplot(121)  # the first subplot 
+sns.distplot(Loan_data['ApplicantIncome'])
+
+plt.subplot(122) # the second subplot 
+Loan_data['ApplicantIncome'].plot.box(figsize = (16,5))
+plt.suptitle('')
+plt.show()
+
+###        CoapplicantIncome'  ####
+plt.figure(1)  # the first figure will be devided in 2 subplot 
+plt.subplot(121)  # the first subplot 
+sns.distplot(Loan_data[ 'CoapplicantIncome'])
+
+plt.subplot(122) # the second subplot 
+Loan_data[ 'CoapplicantIncome'].plot.box(figsize = (16,5))
+plt.suptitle('')
+plt.show()
+
+
+
+# bivarié analysis
+# we have 8 categorical variables 
+fig,axes = plt.subplots(4,2,figsize = (12,15)) # 4 ==> rows & 2 ===> columns
+for idx, cat_col in enumerate (var_cat):
+    row, col = idx//2, idx%2
+    sns.countplot(x= cat_col, data = Loan_data, hue = 'Loan_Status',ax = axes[row,col])
+plt.subplots_adjust(hspace = 1)
+    
+#for i, j in enumerate(var_cat):   i is for the index of each value, and j is for the content or the values of each row
+     #print(i,j)
+     
+# a visual for numerical variables 
+matrix = Loan_data.corr()
+f, ax = plt.subplots(figsize = (10,12))
+sns.heatmap(matrix, vmax = 8, square = True, cmap = 'BuPu', annot = True) # cmap = colors 
